@@ -7,7 +7,7 @@ const app = express()
 const port = 4444
 
 const album = require('./routes/album/album')
-const comment = require('./routes/album/album')
+const comment = require('./routes/album/comment')
 const photo = require('./routes/album/photo')
 
 app.use('/album',album)
