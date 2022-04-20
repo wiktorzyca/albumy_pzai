@@ -11,10 +11,10 @@ var models = initModels(sequelize)
 var Comment = models.comment
 
 // get all comments under specific photo
-router.get('/:pid', async(req, res) => {
+router.get('/all/:pid', async(req, res) => {
     const comment = await Comment.findAll({
         where: {
-            comment_id:req.params.pid
+            photo_id:req.params.pid
         }
     }).then(r =>{
         console.dir(r[0].dataValues)
@@ -24,7 +24,7 @@ router.get('/:pid', async(req, res) => {
 })
 
 // get a specific comment
-router.get('/:id', async(req, res) => {
+router.get('/one/:id', async(req, res) => {
     const comment = await Comment.findAll({
         where: {
             comment_id:req.params.id
