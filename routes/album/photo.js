@@ -24,7 +24,8 @@ router.get('/:id', async(req, res) => {
 
 
 })
-
+// tutaj przyjmujesz jako form data (to tez zmien w postmanie w body na form-data)
+// obslugujesz request za pomoca
 router.post('/', async(req, res) => {
     console.log(req.query)
     let title = req.query.title
