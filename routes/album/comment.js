@@ -41,7 +41,7 @@ router.post('/:pid', async(req, res) => {
     let nick = req.query.nickname
     let cont = req.query.content
     let date = req.query.date
-    const comment = await Comment.create({ comment_id: '', nickname: nick, comment_date: date, content: cont, photo_id: pid}).then(console.log("juz"));
+    const comment = await Comment.create({ comment_id: '', nickname: nick, comment_date: new Date(), content: cont, photo_id: pid}).catch((err)=>console.log).then(console.log("juz"));
     res.send('comment post ')
 })
 

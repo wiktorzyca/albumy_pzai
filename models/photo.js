@@ -22,6 +22,10 @@ module.exports = function(sequelize, DataTypes) {
         model: 'location',
         key: 'location_id'
       }
+    },
+    photopath: {
+      type: DataTypes.TEXT,
+      allowNull: false
     }
   }, {
     sequelize,
