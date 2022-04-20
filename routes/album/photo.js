@@ -7,8 +7,7 @@ const sequelize = new Sequelize('galeria', 'root', '', {
     host: 'localhost',
     dialect: "mysql"
 });
-const fs = require('//const fs = require(\'fs\');\n' +
-    '// const formidable = require(\'formidable\')');
+const fs = require('fs');
 const formidable = require('formidable')
 var models = initModels(sequelize);
 
@@ -57,7 +56,7 @@ router.post('/', async(req, res) => {
         let rawData = fs.readFileSync(oldPath)
         //napisz funkcje ktora wyrenderuje ci uid zdięcia i bedzie zwracala uid
         //zapisz zdiecie do folderu public a nazwe daj uid i rozszerzenie to samo
-        fs.writeFile('public/'+ uid zdiecia, rawData, function(err){
+        fs.writeFile('public/'+ uid ,zdiecia, rawData, function(err){
             if(err) console.log(err)
             console.log("Successfully uploaded photo")
 
