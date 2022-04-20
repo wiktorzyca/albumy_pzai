@@ -10,6 +10,7 @@ const sequelize = new Sequelize('galeria', 'root', '', {
 var models = initModels(sequelize)
 var Comment = models.comment
 
+
 // get all comments under specific photo
 router.get('/all/:pid', async(req, res) => {
     const comment = await Comment.findAll({
