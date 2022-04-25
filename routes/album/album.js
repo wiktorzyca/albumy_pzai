@@ -3,12 +3,15 @@ const router = express.Router()
 const con = require('../../database_config')
 const initModels = require("../../models/init-models");
 const { Sequelize } = require('sequelize');
+const fs = require("fs");
 const sequelize = new Sequelize('galeria', 'root', '', {
     host: 'localhost',
     dialect: "mysql"
 });
 var models = initModels(sequelize);
 var Album = models.album
+var Photo = models.photo
+var Photo_abum = models.photo_album
 
 router.get('/', async(req, res) => {
     const albums = await Album.findAll();
@@ -23,7 +26,43 @@ router.get('/:id', async(req, res) => {
         where: {
             album_id:req.params.id
         }
-    }).then(r =>{
+    }).then(async (r) =>{
+
+        let  photos
+        await Photo.findAll({
+            where: {
+                album_id:req.params.id
+            }
+        }).then(r =>{
+            console.dir(r[0].dataValues)
+            photos = r[0].dataValues
+            // res.send(r[0].dataValues)
+            for(i = 0; i<r.length; i++){
+                
+            }
+        });
+
+        let p = fs.readFileSync("public/"+photo.photopath ,'utf8' , (err, data) => {
+            if (err) {
+                console.error(err)
+                return
+            }
+            console.log(data)
+
+        })
+        res.send({
+            "id" : photo.id,
+            "photo_title" : photo.photo_title,
+            "photo_date": photo.photo_date,
+            "location_id": photo.location_id,
+            "photo_base64": Buffer.from(p).toString('base64')
+        })
+        let responce = {
+            album_id: r[0].dataValues.album_id,
+            album_name: r[0].dataValues.album_name,
+            description: r[0].dataValues.description,
+
+        }
         console.dir(r[0].dataValues)
         res.send(r[0].dataValues)
     });

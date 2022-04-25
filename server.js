@@ -10,6 +10,7 @@ const album = require('./routes/album/album')
 const comment = require('./routes/album/comment')
 const photo = require('./routes/album/photo')
 const location= require('./routes/album/location')
+const tag= require('./routes/album/tag')
 app.use(bodyParser());
 app.use(express.json());
 
@@ -17,6 +18,7 @@ app.use('/album',album)
 app.use('/comment',comment)
 app.use('/photo',photo)
 app.use('/location',location)
+app.use('/tag',tag)
 
 
 

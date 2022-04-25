@@ -8,42 +8,49 @@ const sequelize = new Sequelize('galeria', 'root', '', {
     host: 'localhost',
     dialect: "mysql"
 });
-// const fs = require('//const fs = require(\'fs\');\n' +
-//     '// const formidable = require(\'formidable\')');
-// Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+const fs = require('fs');
 const formidable = require('formidable')
 var models = initModels(sequelize);
 
 var Photo = models.photo
-//tutaj zwracasz jeszcze zdiecie w res.send, wywyłaj responce jako JSON i dam dodaj jszcze oprocz informacji o photo to jeszcze binarnie zapisany plik encodeowany w base64 ogniskowa backend normalsy ambient occlusin bloom smartcontract object pooler: // zadanie : Co autor miał na myśli - res.send czy res.json
-// app.get('/', function(req, res){
-//     res.json({  });
-// });
-
-// to jest opisane tutaj https://stackoverflow.com/questions/65044928/node-express-sending-image-files-with-json-as-api-response tu tez jest odpiedz https://www.php.net/docs.php
 const path = require('path');
+const Photo_album = models.photo_album
 
-const Udi = function () {
-    return randomUUID();
-}
+const { v4: uuidv4 } = require('uuid');
 
 router.get('/:id', async(req, res) => {
     console.log(req.params.id)
-    const photo = await Photo.findAll({
+    let  photo
+        await Photo.findAll({
         where: {
             photo_id:req.params.id
         }
     }).then(r =>{
         console.dir(r[0].dataValues)
-        res.send(r[0].dataValues)
+            photo = r[0].dataValues
+        // res.send(r[0].dataValues)
     });
+    let p = fs.readFileSync("public/"+photo.photopath ,'utf8' , (err, data) => {
+        if (err) {
+            console.error(err)
+            return
+        }
+        console.log(data)
+
+    })
+    res.send({
+        "id" : photo.id,
+        "photo_title" : photo.photo_title,
+        "photo_date": photo.photo_date,
+        "location_id": photo.location_id,
+        "album_id": photo.album_id,
+        "photo_base64": Buffer.from(p).toString('base64')
+    })
+
+
 
 
 })
-// tutaj przyjmujesz jako form data (to tez zmien w postmanie w body na form-data)
-// obslugujesz request za pomoca:
-//const fs = require('fs');         - to jest do dzialan na plikach
-// const formidable = require('formidable')   - to jest do obslugi form-data super mega dzięki nie wiedziałem :DDD
 
 router.post('/', async(req, res) => {
     const form = formidable({ multiples: true });
@@ -56,30 +63,34 @@ router.post('/', async(req, res) => {
         let title = fields.title
         let loc = fields.location_id
         let date = fields.date
+        let album_id = fields.album_id
 
 
         let oldPath = files.photo.filepath;
         let rawData = fs.readFileSync(oldPath)
-        let photo_uid = Udi();
+        let photo_uid = uuidv4();
 
-        //zapisz zdiecie do folderu public a nazwe daj uid i rozszerzenie to samo gdzie jest to rozszerzewnie to już kurwa nie raczysz powiedzieć
-
-
-        fs.writeFile(`public/${photo_uid}.png` , rawData, function(err){
+        fs.writeFile(`public/`+photo_uid , rawData, async(err)=>{
             if(err) console.log(err)
             console.log("Successfully uploaded photo")
+            const photo = await Photo.create({ photo_id: '', photo_title: title, photo_date: new Date() , location_id : loc , photopath : photo_uid, album_id: album_id }).then(async(p)=>{
+                console.log(p)
+                // const photo_album = await Photo_album.create({ photo_album_id: '', album_id: album_id, photo_id: p.photo_id }).then(console.log());
+            } );
+
+
+
+
+
 
         })
     });
-
-    // zedytuj tak, aby dodawalo sie do tabeli photopath (dodalam w bazie danych kolumne photopath i jako value daj )// tego nawet nie ma w tej jebanej bazie danych
-    const photo = await Album.create({ photo_id: '', photo_title: title, photo_date: date , location_id : loc , photopath : " " }).then(console.log("JSU ale ale ale !!!"));
 
     res.send('photo post ')
 })
 router.put('/:id', async(req, res) => {
     console.log( req.params, req.query)
-    await Photo.update({ photo_title: req.query.title, photo_date: req.query.date , location_id :  req.query.location_id }, {
+    await Photo.update({ photo_title: req.query.title , location_id :  req.query.location_id }, {
         where: {
             photo_id: req.params.id
         }
@@ -87,19 +98,26 @@ router.put('/:id', async(req, res) => {
     res.send('photo put ')
 })
 //usun w bazie danych wyszukac uid zdiecia do usuniecia i usuń je z foldery /public za pomoca biblioteki fs nie ma sprawy :)
-router.delete('/public/:id', async(req, res) => {
+router.delete('/:id', async(req, res) => {
     console.log(req.params.id)
+    let photo
+
+        await Photo.findAll({
+        where: {
+            photo_id:req.params.id
+        }
+    }).then(r =>{
+        console.dir(r[0].dataValues)
+            photo = r[0].dataValues
+        //res.send(r[0].dataValues)
+    });
     await Photo.destroy({
         where: {
             photo_id: req.params.id
         }
     });
-    fs.unlinkSync(`public/${req.params.id}.png` , function(err){
-        if(err) console.log(err)
-        console.log("Successfully deleted photo")
-
-    })
-    res.send('photo delete')
+    fs.unlinkSync('./public/'+photo.photopath)
+    res.send('photo delete'+photo.photopath)
 })
 
 

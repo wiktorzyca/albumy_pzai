@@ -26,6 +26,10 @@ module.exports = function(sequelize, DataTypes) {
     photopath: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    album_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   }, {
     sequelize,
