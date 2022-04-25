@@ -22,50 +22,73 @@ router.get('/', async(req, res) => {
 
 router.get('/:id', async(req, res) => {
     console.log(req.params.id)
+    let responce = []
+    let  photos = []
     const album = await Album.findAll({
         where: {
             album_id:req.params.id
         }
     }).then(async (r) =>{
-
-        let  photos
-        await Photo.findAll({
-            where: {
-                album_id:req.params.id
-            }
-        }).then(r =>{
-            console.dir(r[0].dataValues)
-            photos = r[0].dataValues
-            // res.send(r[0].dataValues)
-            for(i = 0; i<r.length; i++){
-                
-            }
-        });
-
-        let p = fs.readFileSync("public/"+photo.photopath ,'utf8' , (err, data) => {
-            if (err) {
-                console.error(err)
-                return
-            }
-            console.log(data)
-
-        })
-        res.send({
-            "id" : photo.id,
-            "photo_title" : photo.photo_title,
-            "photo_date": photo.photo_date,
-            "location_id": photo.location_id,
-            "photo_base64": Buffer.from(p).toString('base64')
-        })
-        let responce = {
+        if(r[0]){responce.push({
             album_id: r[0].dataValues.album_id,
             album_name: r[0].dataValues.album_name,
             description: r[0].dataValues.description,
+        })
 
+        }else{
+            return res.send("no albom")
         }
-        console.dir(r[0].dataValues)
-        res.send(r[0].dataValues)
-    });
+        })
+
+
+        // else{
+        //
+        //     // let responce = {
+        //     //     album_id: r[0].dataValues.album_id,
+        //     //     album_name: r[0].dataValues.album_name,
+        //     //     description: r[0].dataValues.description,
+        //     //
+        //     // }
+        //
+        //     // res.send(responce)
+        // }
+         await Photo.findAll({
+            where: {
+                album_id:req.params.id
+            }
+        }).then(re =>{
+            if(re!==undefined){
+                console.dir(re)
+            }
+            photos = re
+
+        });
+        // console.log("photos", photos)
+        for(let i = 0; i<photos.length; i++){
+            console.log(photos[i].dataValues, "drsgrfdgdgrdgfrd")
+            let p = fs.readFileSync("public/"+photos[i].dataValues.photopath ,'utf8' , (err, data) => {
+                if (err) {
+                    console.error(err)
+                    return
+                }
+                // console.log(datadata)
+
+            })
+            let lol = {
+                "id" : photos[i].dataValues.id,
+                "photo_title" : photos[i].dataValues.photo_title,
+                "photo_date": photos[i].dataValues.photo_date,
+                "location_id": photos[i].dataValues.location_id,
+                "photo_base64": Buffer.from(p).toString('base64')
+            }
+            responce.push(lol)
+        }
+        console.log("RESSSSSSSSSSSSSS", responce)
+
+
+
+    res.send(responce)
+
 
 
 })

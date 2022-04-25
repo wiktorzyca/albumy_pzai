@@ -24,8 +24,12 @@ router.get('/:id', async(req, res) => {
             location_id:req.params.id
         }
     }).then(r =>{
-        console.dir(r[0].dataValues)
-        res.send(r[0].dataValues)
+        if(r[0]){
+            console.dir(r[0].dataValues)
+            res.send(r[0].dataValues)
+        }
+        else
+            res.send("no location with this id")
     });
 
 

@@ -13,6 +13,8 @@ const formidable = require('formidable')
 var models = initModels(sequelize);
 
 var Photo = models.photo
+var PhotoTag = models.photo_tag
+var Location = models.location
 const path = require('path');
 const Photo_album = models.photo_album
 
@@ -47,9 +49,112 @@ router.get('/:id', async(req, res) => {
         "photo_base64": Buffer.from(p).toString('base64')
     })
 
+})
+router.get('/tag/:tag', async(req, res)=>{
+    let  photosTags = []
+    // let photoIds = []
+    let responce = []
+
+    await PhotoTag.findAll({
+        where: {
+            tag_id:req.params.tag
+        }
+    }).catch(err=> console.log(err)).then(r =>{
+        if(r == undefined || r ==[]) res.send("no tag")
+        else{
+            photosTags = r
+        }
+
+        // res.send(r[0].dataValues)
+    });
+    console.log(photosTags, "]]]",req.params.tag)
+    if(photosTags.length>0){
+        for(let i = 0; i<photosTags.length; i++){
+            await Photo.find({
+                where: {
+                    location_id: photosTags[i].dataValues.photo_id
+                }
+            }).catch(err=> console.log(err)).then(r =>{
+                if(r == undefined || r ==[]) res.send("no photos")
+                else{
+                    let p = fs.readFileSync("public/"+r[0].dataValues.photopath ,'utf8' , (err, data) => {
+                        if (err) {
+                            console.error(err)
+                            return
+                        }
+                        // console.log(datadata)
+
+                    })
+                    let lol = {
+                        "id" : r[0].dataValues.id,
+                        "photo_title" : r[0].dataValues.photo_title,
+                        "photo_date": r[0].dataValues.photo_date,
+                        "location_id": r[0].dataValues.location_id,
+                        "photo_base64": Buffer.from(p).toString('base64')
+                    }
+                    responce.push(lol)
+                }
 
 
+            });
 
+        }
+
+    }
+    res.send(responce)
+})
+
+router.get('/', async(req, res)=>{
+    // console.log(req.query.location_name)
+    // let name = ""
+    let  photos = []
+    let responce = []
+    // await Location.findAll({
+    //     where: {
+    //         name:req.params.locationName
+    //     }
+    // }).then(r =>{
+    //     if(r[0]){
+    //         console.dir(r[0].dataValues)
+    //         name = r[0].dataValues.name
+    //     }
+    //     else
+    //         res.send("no location with this name")
+    // });
+
+    await Photo.findAll({
+        where: {
+            location_id:req.query.locationId
+        }
+    }).catch(err=> console.log(err)).then(r =>{
+        if(r == undefined || r ==[]) res.send("no location")
+        else{
+            photos = r
+        }
+
+        // res.send(r[0].dataValues)
+    });
+    for(let i = 0; i<photos.length; i++){
+        console.log(photos[i].dataValues)
+        let p = fs.readFileSync("public/"+photos[i].dataValues.photopath ,'utf8' , (err, data) => {
+            if (err) {
+                console.error(err)
+                return
+            }
+            console.log(data)
+
+        })
+        let lol = {
+            "id" : photos[i].dataValues.id,
+            "photo_title" : photos[i].dataValues.photo_title,
+            "photo_date": photos[i].dataValues.photo_date,
+            "location_id": photos[i].dataValues.location_id,
+            "photo_base64": Buffer.from("").toString('base64')
+        }
+        responce.push(lol)
+    }
+
+    res.send(responce)
 })
 
 router.post('/', async(req, res) => {
@@ -80,9 +185,6 @@ router.post('/', async(req, res) => {
 
 
 
-
-
-
         })
     });
 
@@ -97,7 +199,7 @@ router.put('/:id', async(req, res) => {
     });
     res.send('photo put ')
 })
-//usun w bazie danych wyszukac uid zdiecia do usuniecia i usuń je z foldery /public za pomoca biblioteki fs nie ma sprawy :)
+
 router.delete('/:id', async(req, res) => {
     console.log(req.params.id)
     let photo
@@ -123,20 +225,4 @@ router.delete('/:id', async(req, res) => {
 
 module.exports = router
 
-
-// Wiktorzyca — 18.04.2022
-// to ci ktorzy nie wiedza mozemy dzisiaj pogadac na dc to wam powiem i wytłumacze
-// [15:23]
-// i @ghll trzeba poprawic /photo aby przesyłac zdięcie, zmieniac jego nazwe i zapisywać do odpowiedniego folderu
-
-// ghll — 18.04.2022
-// Ta ale wogole nie ma tych enpoitow od taga i komentarzy w postamanie
-// [15:43]
-// To napisz komentarze w tym pliki co jeszcze trzeba zrobić
-
-// Wiktorzyca — Dziś(20.04.2022) o 17:55
-// napisalam ci w tym pliku
-
-
-//Miłej zabawy w sprawdzaniu czy działa ;D
 

@@ -13,15 +13,24 @@ var Comment = models.comment
 
 // get all comments under specific photo
 router.get('/all/:pid', async(req, res) => {
+    let responce = []
+    let comments = []
     const comment = await Comment.findAll({
         where: {
             photo_id:req.params.pid
         }
     }).then(r =>{
-        console.dir(r[0].dataValues)
-        res.send(r[0].dataValues)
-    });
+        if(r){
+            comments = r
+        }
 
+
+    });
+    for(let i = 0; i< comments.length; i++){
+        responce.push(comments[i].dataValues)
+        console.log(comments[i].dataValues)
+    }
+    res.send(responce)
 })
 
 // get a specific comment
@@ -38,11 +47,12 @@ router.get('/one/:id', async(req, res) => {
 
 // post a comment under specific photo
 router.post('/:pid', async(req, res) => {
+    console.log(req.query)
     let pid = req.params.pid
     let nick = req.query.nickname
     let cont = req.query.content
     let date = req.query.date
-    const comment = await Comment.create({ comment_id: '', nickname: nick, comment_date: new Date(), content: cont, photo_id: pid}).catch((err)=>console.log).then(console.log("juz"));
+    const comment = await Comment.create({ comment_id: '', nickname: nick, comment_date: new Date(), content: cont, photo_id: (pid)}).catch((err)=>res.send("photo with this id does not exist")).then(console.log("juz"));
     res.send('comment post ')
 })
 
