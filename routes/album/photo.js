@@ -159,6 +159,9 @@ router.get('/', async(req, res)=>{
 
 router.post('/', async(req, res) => {
     const form = formidable({ multiples: true });
+
+    let photoMax = await Photo.max("photo_id")
+    console.log("fdgdgbdb", photoMax)
     form.parse(req, (err, fields, files) => {
         if (err) {
             next(err);
@@ -169,6 +172,8 @@ router.post('/', async(req, res) => {
         let loc = fields.location_id
         let date = fields.date
         let album_id = fields.album_id
+        let tags = (fields.tags).split(",")
+        console.log(tags, "DD")
 
 
         let oldPath = files.photo.filepath;
@@ -178,7 +183,7 @@ router.post('/', async(req, res) => {
         fs.writeFile(`public/`+photo_uid , rawData, async(err)=>{
             if(err) console.log(err)
             console.log("Successfully uploaded photo")
-            const photo = await Photo.create({ photo_id: '', photo_title: title, photo_date: new Date() , location_id : loc , photopath : photo_uid, album_id: album_id }).then(async(p)=>{
+            const photo = await Photo.create({ photo_id: photoMax+1, photo_title: title, photo_date: new Date() , location_id : loc , photopath : photo_uid, album_id: album_id }).then(async(p)=>{
                 console.log(p)
                 // const photo_album = await Photo_album.create({ photo_album_id: '', album_id: album_id, photo_id: p.photo_id }).then(console.log());
             } );
@@ -186,7 +191,12 @@ router.post('/', async(req, res) => {
 
 
         })
+        for(let i = 0; i<tags.length; i++){
+             PhotoTag.create({photo_tag_id: "", photo_id: photoMax+1, tag_id: tags[i]}).catch(err=> console.log(err)).then(console.log("juz"))
+        }
+
     });
+
 
     res.send('photo post ')
 })
