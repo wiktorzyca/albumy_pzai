@@ -70,9 +70,9 @@ router.get('/tag/:tag', async(req, res)=>{
     console.log(photosTags, "]]]",req.params.tag)
     if(photosTags.length>0){
         for(let i = 0; i<photosTags.length; i++){
-            await Photo.find({
+            await Photo.findAll({
                 where: {
-                    location_id: photosTags[i].dataValues.photo_id
+                    photo_id: photosTags[i].photo_id
                 }
             }).catch(err=> console.log(err)).then(r =>{
                 if(r == undefined || r ==[]) res.send("no photos")
@@ -86,11 +86,11 @@ router.get('/tag/:tag', async(req, res)=>{
 
                     })
                     let lol = {
-                        "id" : r[0].dataValues.id,
+                        "id" : r[0].dataValues.photo_idid,
                         "photo_title" : r[0].dataValues.photo_title,
                         "photo_date": r[0].dataValues.photo_date,
                         "location_id": r[0].dataValues.location_id,
-                        "photo_base64": Buffer.from(p).toString('base64')
+                        "photo_base64": Buffer.from('').toString('base64')
                     }
                     responce.push(lol)
                 }
@@ -145,7 +145,7 @@ router.get('/', async(req, res)=>{
 
         })
         let lol = {
-            "id" : photos[i].dataValues.id,
+            "id" : photos[i].dataValues.photo_id,
             "photo_title" : photos[i].dataValues.photo_title,
             "photo_date": photos[i].dataValues.photo_date,
             "location_id": photos[i].dataValues.location_id,
@@ -185,15 +185,16 @@ router.post('/', async(req, res) => {
             console.log("Successfully uploaded photo")
             const photo = await Photo.create({ photo_id: photoMax+1, photo_title: title, photo_date: new Date() , location_id : loc , photopath : photo_uid, album_id: album_id }).then(async(p)=>{
                 console.log(p)
+                for(let i = 0; i<tags.length; i++){
+                    PhotoTag.create({photo_tag_id: '', photo_id: photoMax+1, tag_id: parseInt(tags[i])}).catch(err=> console.log(err)).then(console.log("juz"))
+                }
                 // const photo_album = await Photo_album.create({ photo_album_id: '', album_id: album_id, photo_id: p.photo_id }).then(console.log());
             } );
 
 
 
         })
-        for(let i = 0; i<tags.length; i++){
-             PhotoTag.create({photo_tag_id: "", photo_id: photoMax+1, tag_id: tags[i]}).catch(err=> console.log(err)).then(console.log("juz"))
-        }
+
 
     });
 

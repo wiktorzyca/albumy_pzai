@@ -21,9 +21,14 @@ router.get('/', async(req, res) => {
 })
 
 router.get('/:id', async(req, res) => {
-    console.log(req.params.id)
+    let page
+    let size
+    if(req.query.page==undefined) page = 1; else page = parseInt(req.query.page)
+    if(req.query.size==undefined) size = 0; else size = parseInt(req.query.size)
+    console.log(req.query, size, page)
     let responce = []
     let  photos = []
+    let photosSpliced = []
     const album = await Album.findAll({
         where: {
             album_id:req.params.id
@@ -61,12 +66,18 @@ router.get('/:id', async(req, res) => {
                 console.dir(re)
             }
             photos = re
-
+             if(size!==0 ){
+                 photosSpliced = photos.slice((page-1)*(size), size*(page))
+             }
+             else{
+                 photosSpliced= photos
+             }
         });
-        // console.log("photos", photos)
-        for(let i = 0; i<photos.length; i++){
-            console.log(photos[i].dataValues, "drsgrfdgdgrdgfrd")
-            let p = fs.readFileSync("public/"+photos[i].dataValues.photopath ,'utf8' , (err, data) => {
+
+        console.log("slices", photosSpliced, "gdfh", page, size*page)
+        for(let i = 0; i<photosSpliced.length; i++){
+            console.log(photosSpliced[i].dataValues, "drsgrfdgdgrdgfrd")
+            let p = fs.readFileSync("public/"+photosSpliced[i].dataValues.photopath ,'utf8' , (err, data) => {
                 if (err) {
                     console.error(err)
                     return
@@ -75,11 +86,11 @@ router.get('/:id', async(req, res) => {
 
             })
             let lol = {
-                "id" : photos[i].dataValues.id,
-                "photo_title" : photos[i].dataValues.photo_title,
-                "photo_date": photos[i].dataValues.photo_date,
-                "location_id": photos[i].dataValues.location_id,
-                "photo_base64": Buffer.from(p).toString('base64')
+                "id" : photosSpliced[i].dataValues.photo_id,
+                "photo_title" : photosSpliced[i].dataValues.photo_title,
+                "photo_date": photosSpliced[i].dataValues.photo_date,
+                "location_id": photosSpliced[i].dataValues.location_id,
+                "photo_base64": Buffer.from("").toString('base64')
             }
             responce.push(lol)
         }

@@ -40,8 +40,14 @@ router.get('/one/:id', async(req, res) => {
             comment_id:req.params.id
         }
     }).then(r =>{
-        console.dir(r[0].dataValues)
-        res.send(r[0].dataValues)
+        if(r[0]!==undefined){
+            console.dir(r[0].dataValues)
+            res.send(r[0].dataValues)
+        }
+        else{
+            res.send("no comments")
+        }
+
     });
 })
 
